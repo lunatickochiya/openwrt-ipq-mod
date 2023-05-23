@@ -11,6 +11,8 @@ PKG_SOURCE_URL:=https://git.codelinaro.org/clo/qsdk/oss/lklm/qca-ssdk
 PKG_SOURCE_VERSION:=0d6d410637648b1bea0dede48d3fab791689cfce
 PKG_MIRROR_HASH:=skip
 
+PKG_BUILD_FLAGS:=no-lto
+
 ifeq ($(CONFIG_TARGET_ipq),y)
 	subtarget:=$(SUBTARGET)
 else
@@ -88,6 +90,8 @@ QCASSDK_CONFIG_OPTS+= \
 		      TARGET_NAME=$(CONFIG_TARGET_NAME)
 endif
 
+LNX_CONFIG_OPTS = LNX_MAKEOPTS='$(KERNEL_MAKEOPTS)' MODULE_TYPE=KSLIB modules
+
 QCASSDK_CONFIG_OPTS+= TOOL_PATH=$(TOOLCHAIN_BIN_PATH) \
                 SYS_PATH=$(LINUX_DIR) \
                 TOOLPREFIX=$(TARGET_CROSS) \
@@ -95,7 +99,9 @@ QCASSDK_CONFIG_OPTS+= TOOL_PATH=$(TOOLCHAIN_BIN_PATH) \
                 ARCH=$(LINUX_KARCH) \
 		TARGET_SUFFIX=$(CONFIG_TARGET_SUFFIX) \
 		GCC_VERSION=$(GCC_VERSION) \
-		CFLAGS=-I$(STAGING_DIR)/usr/include
+		SoC=$(CONFIG_TARGET_SUBTARGET) \
+		EXTRA_CFLAGS=-fno-stack-protector -I$(STAGING_DIR)/usr/include \
+		$(LNX_CONFIG_OPTS)
 
 ifeq ($(LOCAL_VARIANT),hnat)
     QCASSDK_CONFIG_OPTS+= HNAT_FEATURE=enable
