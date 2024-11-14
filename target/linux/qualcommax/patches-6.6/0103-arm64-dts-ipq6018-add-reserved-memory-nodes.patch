@@ -1,0 +1,31 @@
+--- linux-6.6.54.orig/arch/arm64/boot/dts/qcom/ipq6018.dtsi
++++ linux-6.6.54/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+@@ -209,6 +209,11 @@
+ 			no-map;
+ 		};
+ 
++		nss@40000000 {
++			reg = <0x0 0x40000000 0x0 0x01000000>;
++      			no-map;
++		};
++
+ 		tz: memory@4a600000 {
+ 			reg = <0x0 0x4a600000 0x0 0x400000>;
+ 			no-map;
+@@ -223,6 +229,16 @@
+ 			reg = <0x0 0x4ab00000 0x0 0x5500000>;
+ 			no-map;
+ 		};
++
++		q6_etr_region: q6_etr_dump@50000000 {
++			reg = <0x0 0x50000000 0x0 0x100000>;
++		  	no-map;
++    		};
++
++		m3_dump_region: m3_dump@50100000 {
++			reg = <0x0 0x50100000 0x0 0x100000>;
++		  	no-map;
++    		};
+ 	};
+ 
+ 	smem {
