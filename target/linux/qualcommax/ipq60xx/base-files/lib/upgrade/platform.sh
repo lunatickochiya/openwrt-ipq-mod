@@ -52,6 +52,11 @@ platform_do_upgrade() {
 		fw_setenv owrt_slotactive $((1 - active))
 		nand_do_upgrade "$1"
 		;;
+	jdcloud,re-ss-01)
+		CI_KERNPART="0:HLOS"
+		CI_ROOTPART="rootfs"
+		mmc_do_upgrade "$1"
+		;;
 	*)
 		default_do_upgrade "$1"
 		;;
