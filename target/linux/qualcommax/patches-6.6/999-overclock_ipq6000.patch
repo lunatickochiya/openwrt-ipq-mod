@@ -1,0 +1,13 @@
+--- a/drivers/cpufreq/qcom-cpufreq-nvmem.c
++++ b/drivers/cpufreq/qcom-cpufreq-nvmem.c
+@@ -251,7 +251,9 @@ static int qcom_cpufreq_ipq6018_name_ver
+ 		 * is only rated up to 1.2GHz.
+ 		 * So for IPQ6000 manually set BIT(2) based on SMEM ID.
+ 		 */
+-		drv->versions = IPQ6000_VERSION;
++		dev_info(cpu_dev, "SoC ID %d overclocking to 1.5 GHz!\n", msm_id);
++		drv->versions = BIT(1);
++		//drv->versions = IPQ6000_VERSION;
+ 		break;
+ 	default:
+ 		dev_err(cpu_dev,
