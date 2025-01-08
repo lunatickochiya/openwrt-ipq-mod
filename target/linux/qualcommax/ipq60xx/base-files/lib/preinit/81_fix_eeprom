@@ -2,7 +2,8 @@
 
 preinit_fix_eeprom() {
 	case $(board_name) in
-	jdcloud,re-ss-01)
+	jdcloud,re-ss-01|\
+	jdcloud,re-cs-02)
 		mmc_part=$(find_mmc_part 0:ART)
 		FIRMWARE=""ath11k/IPQ6018/hw1.0/cal-ahb-c000000.wifi.bin""
 		[ ! -e /lib/firmware/"$FIRMWARE" ] && \

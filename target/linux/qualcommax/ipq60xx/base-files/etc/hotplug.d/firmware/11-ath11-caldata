@@ -21,13 +21,17 @@ case "$FIRMWARE" in
 	yuncore,fap650)
 		caldata_extract "0:art" 0x1000 0x20000
 		;;
-	jdcloud,re-ss-01)
+	jdcloud,re-ss-01|\
+	jdcloud,re-cs-02)
 		caldata_extract_mmc "0:ART" 0x1000 0x10000
 		;;
 	esac
 	;;
 "ath11k/QCN9074/hw1.0/cal-pci-0000:01:00.0.bin")
 	case "$board" in
+	jdcloud,re-cs-02)
+		caldata_extract_mmc "0:ART" 0x26800 0x20000
+		;;
 	cambiumnetworks,xe3-4)
 		caldata_extract "0:ART" 0x26800 0x20000
 		;;

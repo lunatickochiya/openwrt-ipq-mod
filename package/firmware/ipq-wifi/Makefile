@@ -36,6 +36,7 @@ ALLWIFIBOARDS:= \
 	compex_wpq873 \
 	dynalink_dl-wrx36 \
 	edgecore_eap102 \
+	jdcloud_re-cs-02 \
 	jdcloud_re-ss-01 \
 	edimax_cax1800 \
 	linksys_mx2000 \
@@ -171,6 +172,7 @@ $(eval $(call generate-ipq-wifi-package,cmcc_rm2-6,CMCC RM2-6))
 $(eval $(call generate-ipq-wifi-package,compex_wpq873,Compex WPQ-873))
 $(eval $(call generate-ipq-wifi-package,dynalink_dl-wrx36,Dynalink DL-WRX36))
 $(eval $(call generate-ipq-wifi-package,edgecore_eap102,Edgecore EAP102))
+$(eval $(call generate-ipq-wifi-package,jdcloud_re-cs-02,JDCloud RE-CS-02))
 $(eval $(call generate-ipq-wifi-package,jdcloud_re-ss-01,JDCloud RE-SS-01))
 $(eval $(call generate-ipq-wifi-package,edimax_cax1800,Edimax CAX1800))
 $(eval $(call generate-ipq-wifi-package,linksys_mx2000,Linksys MX2000))

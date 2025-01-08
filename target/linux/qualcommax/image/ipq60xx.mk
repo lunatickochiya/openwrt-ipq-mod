@@ -67,3 +67,19 @@ define Device/jdcloud_re-ss-01
 	IMAGE/factory.bin := append-kernel | pad-to $${KERNEL_SIZE} | append-rootfs | append-metadata
 endef
 TARGET_DEVICES += jdcloud_re-ss-01
+
+define Device/jdcloud_re-cs-02
+	$(call Device/FitImage)
+	$(call Device/EmmcImage)
+	DEVICE_VENDOR := JDCloud
+	DEVICE_MODEL := RE-CS-02
+	DEVICE_ALT0_VENDOR := JDCloud
+	DEVICE_ALT0_MODEL := AX6600
+	SOC := ipq6010
+	BLOCKSIZE := 64k
+	KERNEL_SIZE := 6144k
+	DEVICE_DTS_CONFIG := config@cp03-c3
+	DEVICE_PACKAGES := ipq-wifi-jdcloud_re-cs-02 kmod-ath11k-pci ath11k-firmware-qcn9074 kmod-fs-f2fs mkf2fs
+	IMAGE/factory.bin := append-kernel | pad-to $${KERNEL_SIZE} | append-rootfs | append-metadata
+endef
+TARGET_DEVICES += jdcloud_re-cs-02
