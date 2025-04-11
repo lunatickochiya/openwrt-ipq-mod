@@ -1171,7 +1171,7 @@ ar8327_sw_hw_apply(struct switch_dev *dev)
 	return 0;
 }
 
-int
+static int
 ar8327_sw_get_port_igmp_snooping(struct switch_dev *dev,
 				 const struct switch_attr *attr,
 				 struct switch_val *val)
@@ -1189,7 +1189,7 @@ ar8327_sw_get_port_igmp_snooping(struct switch_dev *dev,
 	return 0;
 }
 
-int
+static int
 ar8327_sw_set_port_igmp_snooping(struct switch_dev *dev,
 				 const struct switch_attr *attr,
 				 struct switch_val *val)
@@ -1207,7 +1207,7 @@ ar8327_sw_set_port_igmp_snooping(struct switch_dev *dev,
 	return 0;
 }
 
-int
+static int
 ar8327_sw_get_igmp_snooping(struct switch_dev *dev,
 			    const struct switch_attr *attr,
 			    struct switch_val *val)
@@ -1224,7 +1224,7 @@ ar8327_sw_get_igmp_snooping(struct switch_dev *dev,
 	return 0;
 }
 
-int
+static int
 ar8327_sw_set_igmp_snooping(struct switch_dev *dev,
 			    const struct switch_attr *attr,
 			    struct switch_val *val)
@@ -1240,7 +1240,7 @@ ar8327_sw_set_igmp_snooping(struct switch_dev *dev,
 	return 0;
 }
 
-int
+static int
 ar8327_sw_get_igmp_v3(struct switch_dev *dev,
 		      const struct switch_attr *attr,
 		      struct switch_val *val)
@@ -1256,7 +1256,7 @@ ar8327_sw_get_igmp_v3(struct switch_dev *dev,
 	return 0;
 }
 
-int
+static int
 ar8327_sw_set_igmp_v3(struct switch_dev *dev,
 		      const struct switch_attr *attr,
 		      struct switch_val *val)
