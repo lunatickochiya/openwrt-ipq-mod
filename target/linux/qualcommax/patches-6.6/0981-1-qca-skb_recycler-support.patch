@@ -587,12 +587,12 @@
  	skb->offload_fwd_mark = 0;
  	skb->offload_l3_fwd_mark = 0;
  #endif
--	ipvs_reset(skb);
++	ipvs_reset(skb);
  
  	if (!xnet)
  		return;
  
-+	ipvs_reset(skb);
+-	ipvs_reset(skb);
  	skb->mark = 0;
  	skb_clear_tstamp(skb);
  }
