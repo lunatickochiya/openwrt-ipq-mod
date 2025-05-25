@@ -331,11 +331,12 @@
  
  struct Qdisc *qdisc_lookup_rcu(struct net_device *dev, u32 handle)
  {
-@@ -2462,4 +2463,26 @@ static int __init pktsched_init(void)
+@@ -2462,4 +2463,27 @@ static int __init pktsched_init(void)
  	return 0;
  }
  
 +/* QCA NSS Qdisc Support - Start */
++bool tcf_destroy(struct tcf_proto *tp, bool force);
 +bool tcf_destroy(struct tcf_proto *tp, bool force)
 +{
 +	tp->ops->destroy(tp, force, NULL);
