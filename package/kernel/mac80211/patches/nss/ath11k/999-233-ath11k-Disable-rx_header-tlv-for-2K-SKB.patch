@@ -30,7 +30,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  		ret = ath11k_dp_tx_htt_rx_filter_setup(ar->ab, ring_id, ar->dp.mac_id,
 --- a/drivers/net/wireless/ath/ath11k/dp.h
 +++ b/drivers/net/wireless/ath/ath11k/dp.h
-@@ -239,7 +239,8 @@ struct ath11k_pdev_dp {
+@@ -241,7 +241,8 @@ struct ath11k_pdev_dp {
  #define DP_REO_CMD_RING_SIZE		256
  #define DP_REO_STATUS_RING_SIZE		2048
  #define DP_RXDMA_BUF_RING_SIZE		4096
@@ -40,7 +40,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  #define DP_RXDMA_ERR_DST_RING_SIZE	1024
  #define DP_RXDMA_MON_STATUS_RING_SIZE	ATH11K_DP_RXDMA_MON_STATUS_RING_SIZE
  #define DP_RXDMA_MONITOR_BUF_RING_SIZE	ATH11K_DP_RXDMA_MONITOR_BUF_RING_SIZE
-@@ -674,7 +675,7 @@ enum htt_stats_internal_ppdu_frametype {
+@@ -680,7 +681,7 @@ enum htt_stats_internal_ppdu_frametype {
   *
   *    |31       26|25|24|23            16|15             8|7             0|
   *    |-----------------+----------------+----------------+---------------|
@@ -49,7 +49,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
   *    |-------------------------------------------------------------------|
   *    |              rsvd2               |           ring_buffer_size     |
   *    |-------------------------------------------------------------------|
-@@ -688,6 +689,14 @@ enum htt_stats_internal_ppdu_frametype {
+@@ -694,6 +695,14 @@ enum htt_stats_internal_ppdu_frametype {
   *    |-------------------------------------------------------------------|
   *    |                         tlv_filter_in_flags                       |
   *    |-------------------------------------------------------------------|
@@ -64,7 +64,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
   * Where:
   *     PS = pkt_swap
   *     SS = status_swap
-@@ -701,7 +710,10 @@ enum htt_stats_internal_ppdu_frametype {
+@@ -707,7 +716,10 @@ enum htt_stats_internal_ppdu_frametype {
   *                    More details can be got from enum htt_srng_ring_id
   *          b'24    - status_swap: 1 is to swap status TLV
   *          b'25    - pkt_swap:  1 is to swap packet TLV
@@ -76,7 +76,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
   * dword1 - b'0:16  - ring_buffer_size: size of buffers referenced by rx ring,
   *                    in byte units.
   *                    Valid only for HW_TO_SW_RING and SW_TO_HW_RING
-@@ -730,6 +742,42 @@ enum htt_stats_internal_ppdu_frametype {
+@@ -736,6 +748,42 @@ enum htt_stats_internal_ppdu_frametype {
   * dword6 - b'0:31 -  tlv_filter_in_flags:
   *                    Filter in Attention/MPDU/PPDU/Header/User tlvs
   *                    Refer to CFG_TLV_FILTER_IN_FLAG defs
@@ -119,7 +119,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
   */
  
  #define HTT_RX_RING_SELECTION_CFG_CMD_INFO0_MSG_TYPE	GENMASK(7, 0)
-@@ -737,8 +785,16 @@ enum htt_stats_internal_ppdu_frametype {
+@@ -743,8 +791,16 @@ enum htt_stats_internal_ppdu_frametype {
  #define HTT_RX_RING_SELECTION_CFG_CMD_INFO0_RING_ID	GENMASK(23, 16)
  #define HTT_RX_RING_SELECTION_CFG_CMD_INFO0_SS		BIT(24)
  #define HTT_RX_RING_SELECTION_CFG_CMD_INFO0_PS		BIT(25)
@@ -136,7 +136,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  
  enum htt_rx_filter_tlv_flags {
  	HTT_RX_FILTER_TLV_FLAGS_MPDU_START		= BIT(0),
-@@ -1042,6 +1098,14 @@ enum htt_rx_data_pkt_filter_tlv_flasg3 {
+@@ -1048,6 +1104,14 @@ enum htt_rx_data_pkt_filter_tlv_flasg3 {
  		HTT_RX_FILTER_TLV_FLAGS_PER_MSDU_HEADER | \
  		HTT_RX_FILTER_TLV_FLAGS_ATTENTION)
  
@@ -151,7 +151,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  struct htt_rx_ring_selection_cfg_cmd {
  	u32 info0;
  	u32 info1;
-@@ -1050,6 +1114,10 @@ struct htt_rx_ring_selection_cfg_cmd {
+@@ -1056,6 +1120,10 @@ struct htt_rx_ring_selection_cfg_cmd {
  	u32 pkt_type_en_flags2;
  	u32 pkt_type_en_flags3;
  	u32 rx_filter_tlv;
@@ -162,7 +162,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  } __packed;
  
  struct htt_rx_ring_tlv_filter {
-@@ -1058,6 +1126,14 @@ struct htt_rx_ring_tlv_filter {
+@@ -1064,6 +1132,14 @@ struct htt_rx_ring_tlv_filter {
  	u32 pkt_filter_flags1; /* MGMT */
  	u32 pkt_filter_flags2; /* CTRL */
  	u32 pkt_filter_flags3; /* DATA */
@@ -501,7 +501,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  
 --- a/drivers/net/wireless/ath/ath11k/dp_tx.c
 +++ b/drivers/net/wireless/ath/ath11k/dp_tx.c
-@@ -1277,6 +1277,8 @@ int ath11k_dp_tx_htt_rx_filter_setup(str
+@@ -1281,6 +1281,8 @@ int ath11k_dp_tx_htt_rx_filter_setup(str
  				 !!(params.flags & HAL_SRNG_FLAGS_MSI_SWAP));
  	cmd->info0 |= FIELD_PREP(HTT_RX_RING_SELECTION_CFG_CMD_INFO0_PS,
  				 !!(params.flags & HAL_SRNG_FLAGS_DATA_TLV_SWAP));
@@ -510,7 +510,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  
  	cmd->info1 = FIELD_PREP(HTT_RX_RING_SELECTION_CFG_CMD_INFO1_BUF_SIZE,
  				rx_buf_size);
-@@ -1286,6 +1288,26 @@ int ath11k_dp_tx_htt_rx_filter_setup(str
+@@ -1290,6 +1292,26 @@ int ath11k_dp_tx_htt_rx_filter_setup(str
  	cmd->pkt_type_en_flags3 = tlv_filter->pkt_filter_flags3;
  	cmd->rx_filter_tlv = tlv_filter->rx_filter;
  
@@ -537,7 +537,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  	ret = ath11k_htc_send(&ab->htc, ab->dp.eid, skb);
  	if (ret)
  		goto err_free;
-@@ -1364,6 +1386,7 @@ int ath11k_dp_tx_htt_monitor_mode_ring_c
+@@ -1368,6 +1390,7 @@ int ath11k_dp_tx_htt_monitor_mode_ring_c
  	}
  
  	ring_id = dp->rxdma_mon_buf_ring.refill_buf_ring.ring_id;
@@ -904,7 +904,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  #endif
  
  /* Num of peers for Single Radio mode */
-@@ -129,6 +136,9 @@ enum ath11k_bus {
+@@ -134,6 +141,9 @@ enum ath11k_bus {
  struct hal_rx_desc;
  struct hal_tcl_data_cmd;
  
@@ -914,7 +914,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  struct ath11k_hw_ring_mask {
  	u8 tx[ATH11K_EXT_IRQ_GRP_NUM_MAX];
  	u8 rx_mon_status[ATH11K_EXT_IRQ_GRP_NUM_MAX];
-@@ -288,6 +298,16 @@ struct ath11k_hw_ops {
+@@ -294,6 +304,16 @@ struct ath11k_hw_ops {
  	u8* (*rx_desc_mpdu_start_addr2)(struct hal_rx_desc *desc);
  	u32 (*get_ring_selector)(struct sk_buff *skb);
  	u32 (*rx_desc_get_hal_mpdu_len)(struct hal_rx_mpdu_info *mpdu_info);
@@ -933,7 +933,7 @@ Signed-off-by: Ramya Gnanasekar <rgnanase@codeaurora.org>
  extern const struct ath11k_hw_ops ipq8074_ops;
 --- a/drivers/net/wireless/ath/ath11k/mac.c
 +++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -6535,6 +6535,7 @@ static int ath11k_mac_config_mon_status_
+@@ -6538,6 +6538,7 @@ static int ath11k_mac_config_mon_status_
  			tlv_filter.rx_filter = ath11k_debugfs_rx_filter(ar);
  	}
  
