@@ -1,32 +1,41 @@
+From fdf3ee5c6e5278dab4f60b998b47ed2d510bf80f Mon Sep 17 00:00:00 2001
 From: Md Sadre Alam <quic_mdalam@quicinc.com>
-Date: Sun, 22 Sep 2024 17:03:47 +0530
-Subject: [PATCH] mtd: nand: Add qpic_common API file
+Date: Wed, 20 Nov 2024 14:45:02 +0530
+Subject: [PATCH 3/4] mtd: nand: Add qpic_common API file
 
 Add qpic_common.c file which hold all the common
 qpic APIs which will be used by both qpic raw nand
 driver and qpic spi nand driver.
 
 Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
+ drivers/mtd/nand/Makefile            |    2 +-
+ drivers/mtd/nand/qpic_common.c       |  759 ++++++++++++++++++
+ drivers/mtd/nand/raw/qcom_nandc.c    | 1092 +-------------------------
+ include/linux/mtd/nand-qpic-common.h |  468 +++++++++++
+ 4 files changed, 1240 insertions(+), 1081 deletions(-)
+ create mode 100644 drivers/mtd/nand/qpic_common.c
+ create mode 100644 include/linux/mtd/nand-qpic-common.h
+
 --- a/drivers/mtd/nand/Makefile
 +++ b/drivers/mtd/nand/Makefile
-@@ -5,6 +5,10 @@ obj-$(CONFIG_MTD_NAND_CORE) += nandcore.
+@@ -3,7 +3,7 @@
+ nandcore-objs := core.o bbt.o
+ obj-$(CONFIG_MTD_NAND_CORE) += nandcore.o
  obj-$(CONFIG_MTD_NAND_ECC_MEDIATEK) += ecc-mtk.o
- obj-$(CONFIG_MTD_NAND_MTK_BMT)	+= mtk_bmt.o mtk_bmt_v2.o mtk_bmt_bbt.o mtk_bmt_nmbm.o
- 
-+ifeq ($(CONFIG_MTD_NAND_QCOM),y)
-+obj-y	+= qpic_common.o
-+endif
-+
+-
++obj-$(CONFIG_MTD_NAND_QCOM) += qpic_common.o
  obj-y	+= onenand/
  obj-y	+= raw/
  obj-y	+= spi/
 --- /dev/null
 +++ b/drivers/mtd/nand/qpic_common.c
-@@ -0,0 +1,738 @@
+@@ -0,0 +1,759 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (c) 2016, The Linux Foundation. All rights reserved.
++ * Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved
 + */
 +#include <linux/clk.h>
 +#include <linux/delay.h>
@@ -52,6 +61,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	kfree(bam_txn);
 +}
++EXPORT_SYMBOL(qcom_free_bam_transaction);
 +
 +/**
 + * qcom_alloc_bam_transaction() - allocate BAM transaction
@@ -94,6 +104,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	return bam_txn;
 +}
++EXPORT_SYMBOL(qcom_alloc_bam_transaction);
 +
 +/**
 + * qcom_clear_bam_transaction() - Clears the BAM transaction
@@ -118,6 +129,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	reinit_completion(&bam_txn->txn_done);
 +}
++EXPORT_SYMBOL(qcom_clear_bam_transaction);
 +
 +/**
 + * qcom_qpic_bam_dma_done() - Callback for DMA descriptor completion
@@ -131,6 +143,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	complete(&bam_txn->txn_done);
 +}
++EXPORT_SYMBOL(qcom_qpic_bam_dma_done);
 +
 +/**
 + * qcom_nandc_dev_to_mem() - Check for dma sync for cpu or device
@@ -155,6 +168,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +					   sizeof(*nandc->reg_read_buf),
 +					   DMA_FROM_DEVICE);
 +}
++EXPORT_SYMBOL(qcom_nandc_dev_to_mem);
 +
 +/**
 + * qcom_prepare_bam_async_desc() - Prepare DMA descriptor
@@ -234,6 +248,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	return 0;
 +}
++EXPORT_SYMBOL(qcom_prepare_bam_async_desc);
 +
 +/**
 + * qcom_prep_bam_dma_desc_cmd() - Prepares the command descriptor for BAM DMA
@@ -296,6 +311,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	return 0;
 +}
++EXPORT_SYMBOL(qcom_prep_bam_dma_desc_cmd);
 +
 +/**
 + * qcom_prep_bam_dma_desc_data() - Prepares the data descriptor for BAM DMA
@@ -337,6 +353,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	return 0;
 +}
++EXPORT_SYMBOL(qcom_prep_bam_dma_desc_data);
 +
 +/**
 + * qcom_prep_adm_dma_desc() - Prepare descriptor for adma
@@ -425,6 +442,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	return ret;
 +}
++EXPORT_SYMBOL(qcom_prep_adm_dma_desc);
 +
 +/**
 + * qcom_read_reg_dma() - read a given number of registers to the reg_read_buf pointer
@@ -458,11 +476,12 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +	return qcom_prep_adm_dma_desc(nandc, true, first, vaddr,
 +				      num_regs * sizeof(u32), flow_control);
 +}
++EXPORT_SYMBOL(qcom_read_reg_dma);
 +
 +/**
 + * qcom_write_reg_dma() - write a given number of registers
 + * @nandc: qpic nand controller
-+ * @vaddr: contnigeous memory from where register value will
++ * @vaddr: contiguous memory from where register value will
 + *	   be written
 + * @first: offset of the first register in the contiguous block
 + * @num_regs: number of registers to write
@@ -495,6 +514,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +	return qcom_prep_adm_dma_desc(nandc, false, first, vaddr,
 +				      num_regs * sizeof(u32), flow_control);
 +}
++EXPORT_SYMBOL(qcom_write_reg_dma);
 +
 +/**
 + * qcom_read_data_dma() - transfer data
@@ -515,6 +535,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	return qcom_prep_adm_dma_desc(nandc, true, reg_off, vaddr, size, false);
 +}
++EXPORT_SYMBOL(qcom_read_data_dma);
 +
 +/**
 + * qcom_write_data_dma() - transfer data
@@ -535,6 +556,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	return qcom_prep_adm_dma_desc(nandc, false, reg_off, vaddr, size, false);
 +}
++EXPORT_SYMBOL(qcom_write_data_dma);
 +
 +/**
 + * qcom_submit_descs() - submit dma descriptor
@@ -611,6 +633,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +
 +	return ret;
 +}
++EXPORT_SYMBOL(qcom_submit_descs);
 +
 +/**
 + * qcom_clear_read_regs() - reset the read register buffer
@@ -623,6 +646,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +	nandc->reg_read_pos = 0;
 +	qcom_nandc_dev_to_mem(nandc, false);
 +}
++EXPORT_SYMBOL(qcom_clear_read_regs);
 +
 +/**
 + * qcom_nandc_unalloc() - unallocate qpic nand controller
@@ -652,6 +676,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +			dma_release_channel(nandc->chan);
 +	}
 +}
++EXPORT_SYMBOL(qcom_nandc_unalloc);
 +
 +/**
 + * qcom_nandc_alloc() - Allocate qpic nand controller
@@ -762,17 +787,10 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +	qcom_nandc_unalloc(nandc);
 +	return ret;
 +}
---- a/drivers/mtd/nand/raw/Kconfig
-+++ b/drivers/mtd/nand/raw/Kconfig
-@@ -330,7 +330,7 @@ config MTD_NAND_HISI504
- 	  Enables support for NAND controller on Hisilicon SoC Hip04.
- 
- config MTD_NAND_QCOM
--	tristate "QCOM NAND controller"
-+	bool "QCOM NAND controller"
- 	depends on ARCH_QCOM || COMPILE_TEST
- 	depends on HAS_IOMEM
- 	help
++EXPORT_SYMBOL(qcom_nandc_alloc);
++
++MODULE_DESCRIPTION("QPIC controller common api");
++MODULE_LICENSE("GPL");
 --- a/drivers/mtd/nand/raw/qcom_nandc.c
 +++ b/drivers/mtd/nand/raw/qcom_nandc.c
 @@ -15,417 +15,7 @@
@@ -1203,7 +1221,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 - * among different NAND controllers.
 - * @ecc_modes - ecc mode for NAND
 - * @dev_cmd_reg_start - NAND_DEV_CMD_* registers starting offset
-- * @supports_bam - whether NAND controller is using BAM
+- * @supports_bam - whether NAND controller is using Bus Access Manager (BAM)
 - * @nandc_part_of_qpic - whether NAND controller is part of qpic IP
 - * @qpic_version2 - flag to indicate QPIC IP version 2
 - * @use_codeword_fixup - whether NAND has different layout for boot partitions
@@ -1289,11 +1307,11 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 -	complete(&bam_txn->txn_done);
 -}
 -
- static inline struct qcom_nand_host *to_qcom_nand_host(struct nand_chip *chip)
+ static struct qcom_nand_host *to_qcom_nand_host(struct nand_chip *chip)
  {
  	return container_of(chip, struct qcom_nand_host, chip);
-@@ -629,8 +128,8 @@ static inline struct qcom_nand_host *to_
- static inline struct qcom_nand_controller *
+@@ -629,8 +128,8 @@ static struct qcom_nand_host *to_qcom_na
+ static struct qcom_nand_controller *
  get_qcom_nand_controller(struct nand_chip *chip)
  {
 -	return container_of(chip->controller, struct qcom_nand_controller,
@@ -1302,12 +1320,12 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +		((u8 *)chip->controller - sizeof(struct qcom_nand_controller));
  }
  
- static inline u32 nandc_read(struct qcom_nand_controller *nandc, int offset)
-@@ -644,23 +143,6 @@ static inline void nandc_write(struct qc
+ static u32 nandc_read(struct qcom_nand_controller *nandc, int offset)
+@@ -644,23 +143,6 @@ static void nandc_write(struct qcom_nand
  	iowrite32(val, nandc->base + offset);
  }
  
--static inline void qcom_nandc_dev_to_mem(struct qcom_nand_controller *nandc, bool is_cpu)
+-static void qcom_nandc_dev_to_mem(struct qcom_nand_controller *nandc, bool is_cpu)
 -{
 -	if (!nandc->props->supports_bam)
 -		return;
@@ -1324,7 +1342,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 -					   DMA_FROM_DEVICE);
 -}
 -
- /* Helper to check the code word, whether it is last cw or not */
+ /* Helper to check whether this is the last CW or not */
  static bool qcom_nandc_is_last_cw(struct nand_ecc_ctrl *ecc, int cw)
  {
 @@ -820,356 +302,6 @@ static void update_rw_regs(struct qcom_n
@@ -1613,7 +1631,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 - * qcom_write_reg_dma:	prepares a descriptor to write a given number of
 - *			contiguous registers
 - *
-- * @vaddr:		contnigeous memory from where register value will
+- * @vaddr:		contiguous memory from where register value will
 - *			be written
 - * @first:		offset of the first register in the contiguous block
 - * @num_regs:		number of registers to write

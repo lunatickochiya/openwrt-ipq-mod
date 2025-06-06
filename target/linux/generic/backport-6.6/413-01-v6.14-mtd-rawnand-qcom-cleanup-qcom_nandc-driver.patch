@@ -1,19 +1,25 @@
+From 8c52932da5e6756fa66f52f0720da283fba13aa6 Mon Sep 17 00:00:00 2001
 From: Md Sadre Alam <quic_mdalam@quicinc.com>
-Date: Sun, 22 Sep 2024 17:03:45 +0530
-Subject: [PATCH] mtd: rawnand: qcom: cleanup qcom_nandc driver
+Date: Wed, 20 Nov 2024 14:45:00 +0530
+Subject: [PATCH 1/4] mtd: rawnand: qcom: cleanup qcom_nandc driver
 
-cleanup qcom_nandc driver as below
+Perform a global cleanup of the Qualcomm NAND
+controller driver with the following improvements:
 
-- Remove register value indirection api
+- Remove register value indirection API
 
-- Remove set_reg() api
+- Remove set_reg() API
 
-- Convert read_loc_first & read_loc_last macro to function
+- Convert read_loc_first & read_loc_last macro to functions
 
-- Renamed multiple variables
+- Rename multiple variables
 
 Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
+ drivers/mtd/nand/raw/qcom_nandc.c | 516 ++++++++++++++----------------
+ 1 file changed, 234 insertions(+), 282 deletions(-)
+
 --- a/drivers/mtd/nand/raw/qcom_nandc.c
 +++ b/drivers/mtd/nand/raw/qcom_nandc.c
 @@ -189,17 +189,6 @@
@@ -71,7 +77,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 - * @is_bam - whether NAND controller is using BAM
 - * @is_qpic - whether NAND CTRL is part of qpic IP
 - * @qpic_v2 - flag to indicate QPIC IP version 2
-+ * @supports_bam - whether NAND controller is using BAM
++ * @supports_bam - whether NAND controller is using Bus Access Manager (BAM)
 + * @nandc_part_of_qpic - whether NAND controller is part of qpic IP
 + * @qpic_version2 - flag to indicate QPIC IP version 2
   * @use_codeword_fixup - whether NAND has different layout for boot partitions
@@ -110,7 +116,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
  
  	sg_init_table(bam_txn->cmd_sgl, nandc->max_cwperpage *
  		      QPIC_PER_CW_CMD_SGL);
-@@ -640,17 +618,7 @@ static void qpic_bam_dma_done(void *data
+@@ -640,46 +618,35 @@ static void qpic_bam_dma_done(void *data
  {
  	struct bam_transaction *bam_txn = data;
  
@@ -128,14 +134,37 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +	complete(&bam_txn->txn_done);
  }
  
- static inline struct qcom_nand_host *to_qcom_nand_host(struct nand_chip *chip)
-@@ -676,10 +644,9 @@ static inline void nandc_write(struct qc
+-static inline struct qcom_nand_host *to_qcom_nand_host(struct nand_chip *chip)
++static struct qcom_nand_host *to_qcom_nand_host(struct nand_chip *chip)
+ {
+ 	return container_of(chip, struct qcom_nand_host, chip);
+ }
+ 
+-static inline struct qcom_nand_controller *
++static struct qcom_nand_controller *
+ get_qcom_nand_controller(struct nand_chip *chip)
+ {
+ 	return container_of(chip->controller, struct qcom_nand_controller,
+ 			    controller);
+ }
+ 
+-static inline u32 nandc_read(struct qcom_nand_controller *nandc, int offset)
++static u32 nandc_read(struct qcom_nand_controller *nandc, int offset)
+ {
+ 	return ioread32(nandc->base + offset);
+ }
+ 
+-static inline void nandc_write(struct qcom_nand_controller *nandc, int offset,
+-			       u32 val)
++static void nandc_write(struct qcom_nand_controller *nandc, int offset,
++			u32 val)
+ {
  	iowrite32(val, nandc->base + offset);
  }
  
 -static inline void nandc_read_buffer_sync(struct qcom_nand_controller *nandc,
 -					  bool is_cpu)
-+static inline void nandc_dev_to_mem(struct qcom_nand_controller *nandc, bool is_cpu)
++static void nandc_dev_to_mem(struct qcom_nand_controller *nandc, bool is_cpu)
  {
 -	if (!nandc->props->is_bam)
 +	if (!nandc->props->supports_bam)
@@ -213,7 +242,8 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 -		*reg = cpu_to_le32(val);
 -}
 -
- /* Helper to check the code word, whether it is last cw or not */
+-/* Helper to check the code word, whether it is last cw or not */
++/* Helper to check whether this is the last CW or not */
  static bool qcom_nandc_is_last_cw(struct nand_ecc_ctrl *ecc, int cw)
  {
  	return cw == (ecc->steps - 1);
@@ -397,7 +427,7 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
   * write_reg_dma:	prepares a descriptor to write a given number of
   *			contiguous registers
   *
-+ * @vaddr:		contnigeous memory from where register value will
++ * @vaddr:		contiguous memory from where register value will
 + *			be written
   * @first:		offset of the first register in the contiguous block
   * @num_regs:		number of registers to write
@@ -803,18 +833,18 @@ Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
 +	nandc->regs->addr0 = 0;
 +	nandc->regs->addr1 = 0;
 +
-+	nandc->regs->cfg0 = cpu_to_le32(0 << CW_PER_PAGE
-+			    | 512 << UD_SIZE_BYTES
-+			    | 5 << NUM_ADDR_CYCLES
-+			    | 0 << SPARE_SIZE_BYTES);
++	nandc->regs->cfg0 = cpu_to_le32(0 << CW_PER_PAGE |
++					512 << UD_SIZE_BYTES |
++					5 << NUM_ADDR_CYCLES |
++					0 << SPARE_SIZE_BYTES);
 +
-+	nandc->regs->cfg1 = cpu_to_le32(7 << NAND_RECOVERY_CYCLES
-+			    | 0 << CS_ACTIVE_BSY
-+			    | 17 << BAD_BLOCK_BYTE_NUM
-+			    | 1 << BAD_BLOCK_IN_SPARE_AREA
-+			    | 2 << WR_RD_BSY_GAP
-+			    | 0 << WIDE_FLASH
-+			    | 1 << DEV0_CFG1_ECC_DISABLE);
++	nandc->regs->cfg1 = cpu_to_le32(7 << NAND_RECOVERY_CYCLES |
++					0 << CS_ACTIVE_BSY |
++					17 << BAD_BLOCK_BYTE_NUM |
++					1 << BAD_BLOCK_IN_SPARE_AREA |
++					2 << WR_RD_BSY_GAP |
++					0 << WIDE_FLASH |
++					1 << DEV0_CFG1_ECC_DISABLE);
  
 -	nandc_set_reg(chip, NAND_ADDR0, 0);
 -	nandc_set_reg(chip, NAND_ADDR1, 0);
