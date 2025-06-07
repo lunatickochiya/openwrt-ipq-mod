@@ -4,6 +4,7 @@
 /dts-v1/;
 
 #include "ipq8071-ax3600.dtsi"
+#include "ipq8074-nss.dtsi"
 
 / {
 	model = "Redmi AX6";
