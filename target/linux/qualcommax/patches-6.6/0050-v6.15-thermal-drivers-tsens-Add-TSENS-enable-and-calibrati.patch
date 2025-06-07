@@ -217,7 +217,7 @@ Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
  static const struct tsens_ops ops_generic_v2 = {
  	.init		= init_common,
  	.get_temp	= get_temp_tsens_valid,
-@@ -122,6 +278,28 @@ struct tsens_plat_data data_ipq8074 = {
+@@ -121,6 +277,28 @@ struct tsens_plat_data data_ipq8074 = {
  	.fields	= tsens_v2_regfields,
  };
  
@@ -248,7 +248,7 @@ Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
  	.num_sensors	= 13,
 --- a/drivers/thermal/qcom/tsens.c
 +++ b/drivers/thermal/qcom/tsens.c
-@@ -975,7 +975,7 @@ int __init init_common(struct tsens_priv
+@@ -974,7 +974,7 @@ int __init init_common(struct tsens_priv
  	ret = regmap_field_read(priv->rf[TSENS_EN], &enabled);
  	if (ret)
  		goto err_put_device;
@@ -257,7 +257,7 @@ Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
  		dev_err(dev, "%s: device not enabled\n", __func__);
  		ret = -ENODEV;
  		goto err_put_device;
-@@ -1102,6 +1102,12 @@ static SIMPLE_DEV_PM_OPS(tsens_pm_ops, t
+@@ -1101,6 +1101,12 @@ static SIMPLE_DEV_PM_OPS(tsens_pm_ops, t
  
  static const struct of_device_id tsens_table[] = {
  	{
@@ -288,7 +288,7 @@ Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
  
  	/* ----- TM ------ */
  	/* TRDY */
-@@ -651,5 +653,6 @@ extern struct tsens_plat_data data_tsens
+@@ -646,5 +648,6 @@ extern struct tsens_plat_data data_tsens
  
  /* TSENS v2 targets */
  extern struct tsens_plat_data data_8996, data_ipq8074, data_tsens_v2;

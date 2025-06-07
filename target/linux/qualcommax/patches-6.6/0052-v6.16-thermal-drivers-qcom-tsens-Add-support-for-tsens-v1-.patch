@@ -88,7 +88,7 @@ Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
  	.calibrate	= calibrate_v1,
 --- a/drivers/thermal/qcom/tsens.c
 +++ b/drivers/thermal/qcom/tsens.c
-@@ -975,10 +975,16 @@ int __init init_common(struct tsens_priv
+@@ -974,10 +974,16 @@ int __init init_common(struct tsens_priv
  	ret = regmap_field_read(priv->rf[TSENS_EN], &enabled);
  	if (ret)
  		goto err_put_device;

@@ -16,7 +16,7 @@ Signed-off-by: Bjorn Andersson <andersson@kernel.org>
 
 --- a/arch/arm64/boot/dts/qcom/ipq5018.dtsi
 +++ b/arch/arm64/boot/dts/qcom/ipq5018.dtsi
-@@ -79,6 +79,7 @@
+@@ -81,6 +81,7 @@
  	firmware {
  		scm {
  			compatible = "qcom,scm-ipq5018", "qcom,scm";
@@ -24,7 +24,7 @@ Signed-off-by: Bjorn Andersson <andersson@kernel.org>
  			qcom,sdi-enabled;
  		};
  	};
-@@ -221,6 +222,11 @@
+@@ -224,6 +225,11 @@
  			#hwlock-cells = <1>;
  		};
  

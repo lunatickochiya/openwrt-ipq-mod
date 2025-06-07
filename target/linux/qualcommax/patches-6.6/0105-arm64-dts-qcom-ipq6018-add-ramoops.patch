@@ -1,6 +1,6 @@
 --- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
 +++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-@@ -229,15 +229,17 @@
+@@ -224,15 +224,17 @@
  			no-map;
  		};
  
