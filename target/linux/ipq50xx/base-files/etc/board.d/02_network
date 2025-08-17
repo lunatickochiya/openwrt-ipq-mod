@@ -24,6 +24,9 @@ ipq50xx_setup_interfaces()
 				"2:lan:1" "4:lan:2" "5:lan:3" \
 				"1:wan"
 			;;
+		cmcc,rax3000qy)
+			ucidef_add_switch "switch1" \
+				"6t@eth1" "1:wan" "2:lan:1" "4:lan:2" "5:lan:3"
 	esac
 }
 

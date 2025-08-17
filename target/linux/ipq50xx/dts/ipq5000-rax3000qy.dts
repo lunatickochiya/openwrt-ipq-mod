@@ -5,8 +5,8 @@
 #include "ipq5018.dtsi"
 
 / {
-	model = "CMCC RAX3000Q";
-	compatible = "cmcc,rax3000q", "qcom,ipq5018";
+	model = "CMCC RAX3000QY";
+	compatible = "cmcc,rax3000qy", "qcom,ipq5018";
 
 	#address-cells = <2>;
 	#size-cells = <2>;
