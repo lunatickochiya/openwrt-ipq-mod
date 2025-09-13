@@ -11,7 +11,7 @@ KERNEL_PATCHVER:=5.4
 LINUX_VERSION-5.4:=-qsdk-11.5.0.5
 
 CONFIG_KERNEL_GIT_CLONE_URI:=https://git.codelinaro.org/clo/qsdk/oss/kernel/linux-ipq-5.4
-CONFIG_KERNEL_GIT_REF:=d5fcb18e5420670c8734c6a659873e73adab6dac
+CONFIG_KERNEL_GIT_REF:=dcf119b441de268da594bcf427e3934b5db7613a
 
 include $(INCLUDE_DIR)/target.mk
 
