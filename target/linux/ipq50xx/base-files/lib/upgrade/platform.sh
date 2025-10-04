@@ -25,7 +25,11 @@ platform_do_upgrade() {
 		xiaomi,cr881x)
 			mi_dualboot_do_upgrade "$1"
 			;;
-		*)
+		cmcc,rax3000qy|\
+		cmcc,rax3000q)
+			nand_do_upgrade "$1"
+			;;
+						*)
 			default_do_upgrade "$1"
 			;;
 	esac
