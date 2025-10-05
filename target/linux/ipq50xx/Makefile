@@ -28,6 +28,6 @@ DEFAULT_PACKAGES += \
 	uboot-envtools \
 	kmod-qca-nss-dp swconfig \
 	kmod-qca-nss-drv qca-nss-fw-ipq50xx-retail \
-	kmod-ath11k wpad-mesh-openssl
+	kmod-ath11k wpad-openssl
 
 $(eval $(call BuildTarget))
