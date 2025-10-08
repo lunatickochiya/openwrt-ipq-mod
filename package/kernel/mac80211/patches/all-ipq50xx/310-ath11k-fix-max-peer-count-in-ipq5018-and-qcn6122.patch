@@ -83,16 +83,16 @@ index f73e48c..0f25293 100644
  
 +static const struct ath11k_num_vdevs_peers ath11k_vdevs_peers_ipq5018[] = {
 +	{
-+		.num_vdevs = (8 + 1),
-+		.num_peers = 128,
++		.num_vdevs = (4 + 1),
++		.num_peers = 64,
 +	},
 +	{
-+		.num_vdevs = (8 + 1),
-+		.num_peers = 128,
++		.num_vdevs = (4 + 1),
++		.num_peers = 64,
 +	},
 +	{
-+		.num_vdevs = 8,
-+		.num_peers = 128,
++		.num_vdevs = 4,
++		.num_peers = 64,
 +	},
 +};
 +
