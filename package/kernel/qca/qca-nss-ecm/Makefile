@@ -83,6 +83,7 @@ define KernelPackage/qca-nss-ecm/Default/install
 	$(INSTALL_BIN) ./files/on-demand-down $(1)/lib/netifd/offload/on-demand-down
 	$(INSTALL_DATA) ./files/qca-nss-ecm.uci $(1)/etc/config/ecm
 	$(INSTALL_BIN) ./files/qca-nss-ecm.sysctl $(1)/etc/sysctl.d/qca-nss-ecm.conf
+	echo 'net.netfilter.nf_conntrack_max=2048' >> $(1)/etc/sysctl.d/qca-nss-ecm.conf
 # ifeq ($(CONFIG_KERNEL_IPQ_MEM_PROFILE),256)
 # 	echo 'net.netfilter.nf_conntrack_max=2048' >> $(1)/etc/sysctl.d/qca-nss-ecm.conf
 # else ifeq ($(CONFIG_LOWMEM_FLASH),y)
@@ -245,16 +246,16 @@ endif
 
 # ifneq ($(CONFIG_KERNEL_IPQ_MEM_PROFILE),256)
 # ifneq ($(CONFIG_LOWMEM_FLASH),y)
-ifneq ($(CONFIG_XFRM),)
+
 ECM_MAKE_OPTS+=ECM_XFRM_ENABLE=y
-endif
+
 # ECM_MAKE_OPTS+=ECM_FRONT_END_SFE_ENABLE=y
 ECM_MAKE_OPTS+=ECM_NON_PORTED_SUPPORT_ENABLE=y
 # endif
 # endif
 
 # ifeq ($(CONFIG_KERNEL_IPQ_MEM_PROFILE),256)
-# ECM_MAKE_OPTS+=ECM_FRONT_END_CONN_LIMIT_ENABLE=y
+ECM_MAKE_OPTS+=ECM_FRONT_END_CONN_LIMIT_ENABLE=y
 # else ifeq ($(CONFIG_LOWMEM_FLASH),y)
 # ECM_MAKE_OPTS+=ECM_FRONT_END_CONN_LIMIT_ENABLE=y
 # endif
@@ -327,6 +328,7 @@ define Build/Compile
 		EXAMPLES_BUILD_PCC="$(CONFIG_QCA_NSS_ECM_EXAMPLES_PCC)" \
 		EXAMPLES_BUILD_MARK="$(CONFIG_QCA_NSS_ECM_EXAMPLES_MARK)" \
 		EXAMPLES_BUILD_OVS="$(CONFIG_QCA_NSS_ECM_OVS)" \
+		KBUILD_MODPOST_WARN=1 \
 		modules
 endef
 

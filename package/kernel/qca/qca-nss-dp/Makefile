@@ -61,6 +61,7 @@ define Build/Compile
 		ARCH="$(LINUX_KARCH)" \
 		M="$(PKG_BUILD_DIR)" \
 		EXTRA_CFLAGS="$(EXTRA_CFLAGS)" SoC="$(hal_arch)" \
+		KBUILD_MODPOST_WARN=1 \
 		modules
 endef
 

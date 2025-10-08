@@ -10,7 +10,7 @@ PKG_SOURCE_URL:=https://git.codelinaro.org/clo/qsdk/oss/lklm/nss-drv
 PKG_SOURCE_VERSION:=7563fe37340ec4a28b7821a0ac17608ff30e2a85
 PKG_MIRROR_HASH:=skip
 
-NSS_CLIENTS_DIR:=$(TOPDIR)/qca/src/qca-nss-clients
+# NSS_CLIENTS_DIR:=$(TOPDIR)/qca/src/qca-nss-clients
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -19,8 +19,7 @@ define KernelPackage/qca-nss-drv
   CATEGORY:=Kernel modules
   SUBMENU:=Network Devices
   DEPENDS:=@(TARGET_ipq50xx||TARGET_ipq60xx||TARGET_ipq806x||TARGET_ipq807x) \
-	+PACKAGE_kmod-qca-nss-gmac:kmod-qca-nss-gmac \
-	+PACKAGE_kmod-qca-nss-dp:kmod-qca-nss-dp
+	+kmod-qca-nss-dp
   TITLE:=Kernel driver for NSS (core driver)
   FILES:=$(PKG_BUILD_DIR)/qca-nss-drv.ko
   AUTOLOAD:=$(call AutoLoad,32,qca-nss-drv)
@@ -111,9 +110,9 @@ DRV_MAKE_OPTS+=NSS_DRV_C2C_ENABLE=n \
         NSS_DRV_MATCH_ENABLE=n \
         NSS_DRV_MIRROR_ENABLE=n \
         NSS_DRV_IPV4_REASM_ENABLE=n \
-        NSS_DRV_IPV6_REASM_ENABLE=n
-        # NSS_DRV_WIFI_EXT_VDEV_ENABLE=n \
-        # NSS_DRV_WIFI_MESH_ENABLE=n \
+        NSS_DRV_IPV6_REASM_ENABLE=n \
+        NSS_DRV_WIFI_EXT_VDEV_ENABLE=n \
+        NSS_DRV_WIFI_MESH_ENABLE=n
 # Disable PPE bridge support for IPQ50xx.
 ifneq (, $(findstring $(subtarget), "ipq50xx"))
         DRV_MAKE_OPTS+=NSS_DRV_BRIDGE_ENABLE=n
@@ -135,6 +134,7 @@ define Build/Compile
 		ARCH="$(LINUX_KARCH)" \
 		M="$(PKG_BUILD_DIR)" \
 		EXTRA_CFLAGS="$(EXTRA_CFLAGS)" SoC="$(subtarget)" \
+		KBUILD_MODPOST_WARN=1 \
 		modules
 endef
 

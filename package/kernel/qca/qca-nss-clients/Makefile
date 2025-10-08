@@ -10,7 +10,7 @@ PKG_SOURCE_URL:=https://git.codelinaro.org/clo/qsdk/oss/lklm/nss-clients
 PKG_SOURCE_VERSION:=30742bb1decd5fe7b4e01be8081ab0a99c1f6888
 PKG_MIRROR_HASH:=skip
 
-PKG_BUILD_DEPENDS := PACKAGE_kmod-qca-nss-crypto:kmod-qca-nss-crypto
+# PKG_BUILD_DEPENDS := PACKAGE_kmod-qca-nss-crypto:kmod-qca-nss-crypto
 MAKE_OPTS:=
 
 include $(INCLUDE_DIR)/package.mk
@@ -596,6 +596,8 @@ endif
 ifneq ($(CONFIG_PACKAGE_kmod-qca-nss-drv-netlink),)
 MAKE_OPTS+=netlink=y
 
+EXTRA_CFLAGS+= -DNSS_NETLINK_UDP_ST_NO_RMNET_SUPPORT
+
 # ifeq ($(CONFIG_KERNEL_IPQ_MEM_PROFILE),256)
 # EXTRA_CFLAGS+= -DNSS_NETLINK_UDP_ST_NO_RMNET_SUPPORT
 # else ifeq ($(CONFIG_LOWMEM_FLASH),y)
@@ -656,6 +658,7 @@ define Build/Compile
 		SoC="$(subtarget)" \
 		DTLSMGR_DIR="$(DTLSMGR_DIR)" \
 		IPSECMGR_DIR="$(IPSECMGR_DIR)" \
+		KBUILD_MODPOST_WARN=1 \
 		modules
 endef
 
