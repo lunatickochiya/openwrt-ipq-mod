@@ -23,23 +23,69 @@
 		led-running = &led_status_green;
 		led-upgrade = &led_status_blue;
 	};
-
+	
 	chosen {
-		// Override the root parameter from u-boot
-		// Increase coherent_pool size for WiFi
-		bootargs-append = " root=/dev/ubiblock0_1 coherent_pool=2M";
-		stdout-path = "serial0:115200n8";
+		bootargs = "console=ttyMSM0,115200,n8 rw init=/init";
+		bootargs-append = " swiotlb=1 coherent_pool=2M";
+		stdout-path = "serial0";
 	};
 
 	reserved-memory {
-		q6_mem_regions: q6_mem_regions@4b000000 {
+		q6_mem_regions: q6_mem_regions@4B000000 {
 			no-map;
-#ifndef CONFIG_ATH11K_MEM_PROFILE_256M
-			reg = <0x0 0x4b000000 0x0 0x3b00000>;
-#else
-			reg = <0x0 0x4b000000 0x0 0x3000000>;
-#endif
+			reg = <0x0 0x4B000000 0x0 0x4100000>;
 		};
+
+		q6_code_data: q6_code_data@4B000000 {
+			no-map;
+			reg = <0x0 0x4B000000 0x0 0x1400000>;
+		};
+
+		q6_ipq5018_data: q6_ipq5018_data@4C400000 {
+			no-map;
+			reg = <0x0 0x4C400000 0x0 0xD00000>;
+		};
+
+		m3_dump: m3_dump@4D100000 {
+			no-map;
+			reg = <0x0 0x4D100000 0x0 0x100000>;
+		};
+
+		q6_etr_region: q6_etr_dump@4D200000 {
+			no-map;
+			reg = <0x0 0x4D200000 0x0 0x100000>;
+		};
+
+		q6_qcn6122_data1: q6_qcn6122_data1@4D300000 {
+			no-map;
+			reg = <0x0 0x4D300000 0x0 0xD00000>;
+		};
+
+		m3_dump_qcn6122_1: m3_dump_qcn6122_1@4E000000 {
+			no-map;
+			reg = <0x0 0x4E000000 0x0 0x100000>;
+		};
+
+		q6_qcn6122_etr_1: q6_qcn6122_etr_1@4E100000 {
+			no-map;
+			reg = <0x0 0x4E100000 0x0 0x100000>;
+		};
+
+		q6_qcn6122_data2: q6_qcn6122_data2@4E200000 {
+			no-map;
+			reg = <0x0 0x4E200000 0x0 0xD00000>;
+		};
+
+		m3_dump_qcn6122_2: m3_dump_qcn6122_2@4EF00000 {
+			no-map;
+			reg = <0x0 0x4EF00000 0x0 0x100000>;
+		};
+
+		q6_qcn6122_etr_2: q6_qcn6122_etr_2@4F000000 {
+			no-map;
+			reg = <0x0 0x4F000000 0x0 0x100000>;
+		};
+		
 	};
 
 	thermal-zones {
@@ -385,6 +431,31 @@
 	};
 };
 
+
+&pcie_x1phy {
+	status = "disabled";
+};
+
+&pcie_x2phy {
+	status = "disabled";
+};
+
+&pcie_x1_rp {
+	status = "disabled";
+
+	mhi_0: qcom,mhi@0 {
+		reg = <0 0 0 0 0 >;
+	};
+};
+
+&pcie_x2_rp {
+	status = "disabled";
+
+	mhi_1: qcom,mhi@1 {
+		reg = <0 0 0 0 0 >;
+	};
+};
+
 &q6v5_wcss {
 	compatible = "qcom,ipq5018-q6-mpd";
 	#address-cells = <1>;
@@ -424,7 +495,7 @@
 		"tcsr-msip",
 		"tcsr-q6";
 
-	memory-region = <&q6_mem_regions>;
+	memory-region = <&q6_mem_regions>, <&q6_etr_region>;
 
 	qcom,rproc = <&q6v5_wcss>;
 	firmware = "IPQ5018/q6_fw.mdt";
@@ -487,6 +558,8 @@
 
 		firmware = "IPQ5018/q6_fw.mdt";
 		m3_firmware = "IPQ5018/m3_fw.mdt";
+		memory-region = <&q6_ipq5018_data>, <&m3_dump>,
+				<&q6_etr_region>;
 	};
 
 	// QCN6102
@@ -515,6 +588,8 @@
 
 		firmware = "IPQ5018/q6_fw.mdt";
 		m3_firmware = "qcn6122/m3_fw.mdt";
+		memory-region = <&q6_qcn6122_data1>, <&m3_dump_qcn6122_1>,
+				<&q6_qcn6122_etr_1>;
 	};
 };
 
@@ -526,6 +601,8 @@
 
 	qcom,board_id = <0x24>;
 
+	qcom,tgt-mem-mode = <2>;
+	mem-region = <&q6_ipq5018_data>;
 	qcom,bdf-addr = <0x4c400000 0x4c400000 0x4c400000>;
 	qcom,caldb-addr = <0x4d200000 0x4d200000 0>;
 #ifndef CONFIG_ATH11K_MEM_PROFILE_256M
@@ -545,6 +622,8 @@
 
 	qcom,board_id = <0x60>;
 
+	qcom,tgt-mem-mode = <2>;
+	mem-region = <&q6_qcn6122_data1>;
 	qcom,bdf-addr = <0x4d500000 0x4d500000 0x4d100000>;
 	qcom,caldb-addr = <0x4e500000 0x4e500000 0>;
 #ifndef CONFIG_ATH11K_MEM_PROFILE_256M
