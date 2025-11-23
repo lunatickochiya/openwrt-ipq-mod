@@ -3,7 +3,6 @@
 /dts-v1/;
 
 #include "ipq6018-512m.dtsi"
-#include "ipq6018-cp-cpu.dtsi"
 #include "ipq6018-ess.dtsi"
 #include "ipq6018-nss.dtsi"
 
@@ -171,9 +170,9 @@
 
 &switch {
 	status = "okay";
-       
-	switch_lan_bmp = <(ESS_PORT3 | ESS_PORT4 | ESS_PORT5)>; /* lan port bitmap */
-	switch_wan_bmp = <ESS_PORT2>; /* wan port bitmap */
+
+	switch_lan_bmp = <(ESS_PORT2 | ESS_PORT3 | ESS_PORT4)>;
+	switch_wan_bmp = <ESS_PORT5>;
 	switch_mac_mode = <MAC_MODE_PSGMII>;
 
 	qcom,port_phyinfo {
