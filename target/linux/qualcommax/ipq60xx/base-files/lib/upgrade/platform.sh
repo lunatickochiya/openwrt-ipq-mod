@@ -53,6 +53,8 @@ platform_do_upgrade() {
 		nand_do_upgrade "$1"
 		;;
 	jdcloud,re-ss-01|\
+	link,nn6000-v1|\
+	link,nn6000-v2|\
 	jdcloud,re-cs-02)
 		CI_KERNPART="0:HLOS"
 		CI_ROOTPART="rootfs"
@@ -66,6 +68,8 @@ platform_do_upgrade() {
 
 platform_copy_config() {
 	case "$(board_name)" in
+	link,nn6000-v1|\
+	link,nn6000-v2|\
 	jdcloud,re-ss-01)
 		emmc_copy_config
 		;;
