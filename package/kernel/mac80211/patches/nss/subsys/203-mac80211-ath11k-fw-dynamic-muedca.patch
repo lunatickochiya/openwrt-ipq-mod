@@ -31,7 +31,7 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
 
 --- a/include/net/cfg80211.h
 +++ b/include/net/cfg80211.h
-@@ -9847,4 +9847,15 @@ ssize_t wiphy_locked_debugfs_write(struc
+@@ -9837,4 +9837,15 @@ ssize_t wiphy_locked_debugfs_write(struc
  				   void *data);
  #endif
  
@@ -49,7 +49,7 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
  #endif /* __NET_CFG80211_H */
 --- a/include/net/mac80211.h
 +++ b/include/net/mac80211.h
-@@ -7589,6 +7589,20 @@ u32 ieee80211_calc_rx_airtime(struct iee
+@@ -7647,6 +7647,20 @@ u32 ieee80211_calc_rx_airtime(struct iee
  			      int len);
  
  /**
@@ -72,9 +72,9 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
   * This function calculates the estimated airtime usage of a frame based on the
 --- a/include/uapi/linux/nl80211.h
 +++ b/include/uapi/linux/nl80211.h
-@@ -1329,6 +1329,10 @@
-  *      %NL80211_ATTR_MLO_TTLM_ULINK attributes are used to specify the
-  *      TID to Link mapping for downlink/uplink traffic.
+@@ -1336,6 +1336,10 @@
+  *	control EPCS configuration. Used to notify userland on the current state
+  *	of EPCS.
   *
 + * @NL80211_CMD_UPDATE_HE_MUEDCA_PARAMS: Updated MU-EDCA parameters from driver.
 + *	This event is used to update dynamic MU-EDCA parameters in Beacon frame,
@@ -83,26 +83,26 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
   * @NL80211_CMD_MAX: highest used command number
   * @__NL80211_CMD_AFTER_LAST: internal use
   */
-@@ -1586,6 +1590,7 @@ enum nl80211_commands {
- 
- 	NL80211_CMD_SET_TID_TO_LINK_MAPPING,
+@@ -1596,6 +1600,7 @@ enum nl80211_commands {
+ 	NL80211_CMD_ASSOC_MLO_RECONF,
+ 	NL80211_CMD_EPCS_CFG,
  
 +	NL80211_CMD_UPDATE_HE_MUEDCA_PARAMS,
  	/* add new commands above here */
  
  	/* used to define NL80211_CMD_MAX below */
-@@ -2871,6 +2876,8 @@ enum nl80211_commands {
-  * @NL80211_ATTR_VIF_RADIO_MASK: Bitmask of allowed radios (u32).
-  *	A value of 0 means all radios.
+@@ -2899,6 +2904,8 @@ enum nl80211_commands {
+  *	APs Support". Drivers may set additional flags that they support
+  *	in the kernel or device.
   *
 + * @NL80211_ATTR_HE_MUEDCA_PARAMS: MU-EDCA AC parameters for the
 + *	%NL80211_CMD_UPDATE_HE_MUEDCA_PARAMS command.
   * @NUM_NL80211_ATTR: total number of nl80211_attrs available
   * @NL80211_ATTR_MAX: highest attribute number currently defined
   * @__NL80211_ATTR_AFTER_LAST: internal use
-@@ -3421,6 +3428,8 @@ enum nl80211_attrs {
+@@ -3456,6 +3463,8 @@ enum nl80211_attrs {
  
- 	NL80211_ATTR_VIF_RADIO_MASK,
+ 	NL80211_ATTR_ASSOC_MLD_EXT_CAPA_OPS,
  
 +	NL80211_ATTR_HE_MUEDCA_PARAMS,
 +
@@ -111,10 +111,10 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
  	__NL80211_ATTR_AFTER_LAST,
 --- a/net/mac80211/mlme.c
 +++ b/net/mac80211/mlme.c
-@@ -9437,3 +9437,15 @@ void ieee80211_disable_rssi_reports(stru
- 	_ieee80211_enable_rssi_reports(sdata, 0, 0);
+@@ -10863,3 +10863,15 @@ void ieee80211_process_epcs_teardown(str
+ 	ieee80211_epcs_teardown(sdata);
+ 	ieee80211_epcs_changed(sdata, false);
  }
- EXPORT_SYMBOL(ieee80211_disable_rssi_reports);
 +
 +void ieee80211_update_muedca_params(struct ieee80211_hw *hw,
 +				    struct ieee80211_mu_edca_param_set
@@ -129,7 +129,7 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
 +EXPORT_SYMBOL(ieee80211_update_muedca_params);
 --- a/net/mac80211/trace.h
 +++ b/net/mac80211/trace.h
-@@ -3134,6 +3134,26 @@ TRACE_EVENT(stop_queue,
+@@ -3249,6 +3249,26 @@ TRACE_EVENT(stop_queue,
  	)
  );
  
@@ -158,7 +158,7 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
  		     struct ieee80211_sub_if_data *sdata,
 --- a/net/wireless/nl80211.c
 +++ b/net/wireless/nl80211.c
-@@ -828,6 +828,7 @@ static const struct nla_policy nl80211_p
+@@ -846,6 +846,7 @@ static const struct nla_policy nl80211_p
  	[NL80211_ATTR_HW_TIMESTAMP_ENABLED] = { .type = NLA_FLAG },
  	[NL80211_ATTR_EMA_RNR_ELEMS] = { .type = NLA_NESTED },
  	[NL80211_ATTR_MLO_LINK_DISABLED] = { .type = NLA_FLAG },
@@ -166,9 +166,9 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
  	[NL80211_ATTR_BSS_DUMP_INCLUDE_USE_DATA] = { .type = NLA_FLAG },
  	[NL80211_ATTR_MLO_TTLM_DLINK] = NLA_POLICY_EXACT_LEN(sizeof(u16) * 8),
  	[NL80211_ATTR_MLO_TTLM_ULINK] = NLA_POLICY_EXACT_LEN(sizeof(u16) * 8),
-@@ -20460,6 +20461,42 @@ void cfg80211_schedule_channels_check(st
+@@ -20611,6 +20612,42 @@ void cfg80211_epcs_changed(struct net_de
  }
- EXPORT_SYMBOL(cfg80211_schedule_channels_check);
+ EXPORT_SYMBOL(cfg80211_epcs_changed);
  
 +void cfg80211_update_muedca_params_event(struct wiphy *wiphy,
 +					 struct ieee80211_mu_edca_param_set
@@ -211,7 +211,7 @@ Signed-off-by: Muna Sinada <msinada@codeaurora.org>
  int __init nl80211_init(void)
 --- a/net/wireless/trace.h
 +++ b/net/wireless/trace.h
-@@ -3998,6 +3998,46 @@ TRACE_EVENT(cfg80211_update_owe_info_eve
+@@ -4001,6 +4001,46 @@ TRACE_EVENT(cfg80211_update_owe_info_eve
  		  __entry->assoc_link_id, __entry->peer_mld_addr)
  );
  

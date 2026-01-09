@@ -370,13 +370,7 @@ define KernelPackage/ath11k/config
 
        config ATH11K_NSS_SUPPORT
                bool "Enable NSS WiFi offload"
-               select ATH11K_MEM_PROFILE_512M if (TARGET_qualcommax_ipq807x_DEVICE_edimax_cax1800 || \
-               	 TARGET_qualcommax_ipq807x_DEVICE_compex_wpq873 || \
-               	 TARGET_qualcommax_ipq807x_DEVICE_linksys_mx4200v1 || \
-               	 TARGET_qualcommax_ipq807x_DEVICE_redmi_ax6 || \
-               	 TARGET_qualcommax_ipq807x_DEVICE_xiaomi_ax3600 || \
-               	 TARGET_qualcommax_ipq807x_DEVICE_zte_mf269 )
-               select ATH11K_MEM_PROFILE_256M if TARGET_qualcommax_ipq807x_DEVICE_netgear_wax218
+               select ATH11K_MEM_PROFILE_512M
                select PACKAGE_kmod-qca-nss-ecm
                default y
                help
@@ -393,7 +387,7 @@ define KernelPackage/ath11k/config
        choice
             prompt "Memory Profile"
             depends on PACKAGE_kmod-ath11k
-            default ATH11K_MEM_PROFILE_1G
+            default ATH11K_MEM_PROFILE_512M
             help
             	This option allows you to select the memory profile.
             	It should correspond to the total RAM of your board.

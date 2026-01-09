@@ -24,7 +24,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
 
 --- a/drivers/net/wireless/ath/ath11k/ahb.c
 +++ b/drivers/net/wireless/ath/ath11k/ahb.c
-@@ -527,6 +527,12 @@ static int ath11k_ahb_config_ext_irq(str
+@@ -537,6 +537,12 @@ static int ath11k_ahb_config_ext_irq(str
  	int i, j;
  	int irq;
  	int ret;
@@ -37,7 +37,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  
  	for (i = 0; i < ATH11K_EXT_IRQ_GRP_NUM_MAX; i++) {
  		struct ath11k_ext_irq_grp *irq_grp = &ab->ext_irq_grp[i];
-@@ -543,20 +549,20 @@ static int ath11k_ahb_config_ext_irq(str
+@@ -553,20 +559,20 @@ static int ath11k_ahb_config_ext_irq(str
  			       ath11k_ahb_ext_grp_napi_poll);
  
  		for (j = 0; j < ATH11K_EXT_IRQ_NUM_MAX; j++) {
@@ -62,7 +62,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  				irq_grp->irqs[num_irq++] = wbm2host_rx_release;
  
  			if (ab->hw_params.ring_mask->reo_status[i] & BIT(j))
-@@ -569,7 +575,7 @@ static int ath11k_ahb_config_ext_irq(str
+@@ -579,7 +585,7 @@ static int ath11k_ahb_config_ext_irq(str
  						ath11k_hw_get_mac_from_pdev_id(hw, j);
  				}
  
@@ -71,7 +71,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  					irq_grp->irqs[num_irq++] =
  						host2rxdma_host_buf_ring_mac1 -
  						ath11k_hw_get_mac_from_pdev_id(hw, j);
-@@ -910,6 +916,7 @@ static int ath11k_ahb_setup_resources(st
+@@ -950,6 +956,7 @@ static int ath11k_ahb_setup_resources(st
  	}
  
  	ab->mem = mem;
@@ -94,7 +94,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  unsigned int ath11k_debug_mask;
  EXPORT_SYMBOL(ath11k_debug_mask);
  module_param_named(debug_mask, ath11k_debug_mask, uint, 0644);
-@@ -1725,10 +1731,16 @@ static int ath11k_core_pdev_create(struc
+@@ -1988,10 +1994,16 @@ static int ath11k_core_pdev_create(struc
  		goto err_pdev_debug;
  	}
  
@@ -112,7 +112,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	}
  
  	ret = ath11k_thermal_register(ab);
-@@ -1750,6 +1762,8 @@ err_thermal_unregister:
+@@ -2013,6 +2025,8 @@ err_thermal_unregister:
  	ath11k_thermal_unregister(ab);
  err_mac_unregister:
  	ath11k_mac_unregister(ab);
@@ -121,7 +121,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  err_dp_pdev_free:
  	ath11k_dp_pdev_free(ab);
  err_pdev_debug:
-@@ -1763,6 +1777,10 @@ static void ath11k_core_pdev_destroy(str
+@@ -2061,6 +2075,10 @@ static void ath11k_core_pdev_destroy(str
  	ath11k_spectral_deinit(ab);
  	ath11k_thermal_unregister(ab);
  	ath11k_mac_unregister(ab);
@@ -129,10 +129,10 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
 +	ath11k_nss_teardown(ab);
 +	ab->nss.enabled = false;
 +
+ 	ath11k_core_pdev_suspend_target(ab);
  	ath11k_hif_irq_disable(ab);
  	ath11k_dp_pdev_free(ab);
- 	ath11k_debugfs_pdev_destroy(ab);
-@@ -1969,6 +1987,10 @@ static int ath11k_core_reconfigure_on_cr
+@@ -2268,6 +2286,10 @@ static int ath11k_core_reconfigure_on_cr
  	int ret;
  
  	mutex_lock(&ab->core_lock);
@@ -143,7 +143,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	ath11k_thermal_unregister(ab);
  	ath11k_dp_pdev_free(ab);
  	ath11k_spectral_deinit(ab);
-@@ -2300,6 +2322,10 @@ int ath11k_core_pre_init(struct ath11k_b
+@@ -2606,6 +2628,10 @@ int ath11k_core_pre_init(struct ath11k_b
  		ath11k_err(ab, "failed to pre init firmware: %d", ret);
  		return ret;
  	}
@@ -156,24 +156,24 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  }
 --- a/drivers/net/wireless/ath/ath11k/core.h
 +++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -17,7 +17,6 @@
- #include <linux/average.h>
+@@ -18,7 +18,6 @@
  #include <linux/firmware.h>
+ #include <linux/suspend.h>
  
 -#include "fw.h"
  #include "qmi.h"
  #include "htc.h"
  #include "wmi.h"
-@@ -33,6 +32,8 @@
- #include "spectral.h"
+@@ -35,6 +34,8 @@
  #include "wow.h"
  #include "rx_desc.h"
+ #include "coredump.h"
 +#include "nss.h"
 +#include "fw.h"
  
  #define SM(_v, _f) (((_v) << _f##_LSB) & _f##_MASK)
  
-@@ -428,6 +429,9 @@ struct ath11k_vif {
+@@ -432,6 +433,9 @@ struct ath11k_vif {
  
  	struct ath11k_reg_tpc_power_info reg_tpc_info;
  	struct ath11k_mgmt_frame_stats mgmt_stats;
@@ -183,7 +183,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	/* Must be last - ends in a flexible-array member.
  	 *
  	 * FIXME: Driver should not copy struct ieee80211_chanctx_conf,
-@@ -587,6 +591,9 @@ struct ath11k_sta {
+@@ -591,6 +595,9 @@ struct ath11k_sta {
  #endif
  
  	bool use_4addr_set;
@@ -193,7 +193,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	u16 tcl_metadata;
  
  	/* Protected with ar->data_lock */
-@@ -683,6 +690,9 @@ struct ath11k {
+@@ -687,6 +694,9 @@ struct ath11k {
  	struct ath11k_pdev *pdev;
  	struct ieee80211_hw *hw;
  	struct ath11k_pdev_wmi *wmi;
@@ -203,7 +203,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	struct ath11k_pdev_dp dp;
  	u8 mac_addr[ETH_ALEN];
  	struct ath11k_he ar_he;
-@@ -956,6 +966,7 @@ struct ath11k_base {
+@@ -964,6 +974,7 @@ struct ath11k_base {
  
  	void __iomem *mem;
  	void __iomem *mem_ce;
@@ -251,7 +251,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	switch (type) {
  	case HAL_WBM2SW_RELEASE:
  		if (ring_num == DP_RX_RELEASE_RING_NUM) {
-@@ -779,14 +796,16 @@ int ath11k_dp_service_srng(struct ath11k
+@@ -835,14 +852,16 @@ int ath11k_dp_service_srng(struct ath11k
  	int work_done = 0;
  	int i, j;
  	int tot_work_done = 0;
@@ -273,7 +273,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  		work_done = ath11k_dp_process_rx_err(ab, napi, budget);
  		budget -= work_done;
  		tot_work_done += work_done;
-@@ -794,7 +813,7 @@ int ath11k_dp_service_srng(struct ath11k
+@@ -850,7 +869,7 @@ int ath11k_dp_service_srng(struct ath11k
  			goto done;
  	}
  
@@ -282,7 +282,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  		work_done = ath11k_dp_rx_process_wbm_err(ab,
  							 napi,
  							 budget);
-@@ -805,7 +824,7 @@ int ath11k_dp_service_srng(struct ath11k
+@@ -861,7 +880,7 @@ int ath11k_dp_service_srng(struct ath11k
  			goto done;
  	}
  
@@ -291,7 +291,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  		i =  fls(ab->hw_params.ring_mask->rx[grp_id]) - 1;
  		work_done = ath11k_dp_process_rx(ab, i, napi,
  						 budget);
-@@ -839,7 +858,7 @@ int ath11k_dp_service_srng(struct ath11k
+@@ -895,7 +914,7 @@ int ath11k_dp_service_srng(struct ath11k
  	if (ab->hw_params.ring_mask->reo_status[grp_id])
  		ath11k_dp_process_reo_status(ab);
  
@@ -302,7 +302,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  
 --- a/drivers/net/wireless/ath/ath11k/dp.h
 +++ b/drivers/net/wireless/ath/ath11k/dp.h
-@@ -196,6 +196,7 @@ struct ath11k_pdev_dp {
+@@ -197,6 +197,7 @@ struct ath11k_pdev_dp {
  #define DP_AVG_MSDUS_PER_MPDU 4
  
  #define DP_RX_HASH_ENABLE	1 /* Enable hash based Rx steering */
@@ -439,7 +439,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  
  	num_users = ppdu_info->num_users;
  	if (num_users > HAL_MAX_UL_MU_USERS)
-@@ -5673,7 +5702,7 @@ int ath11k_dp_rx_process_mon_status(stru
+@@ -5677,7 +5706,7 @@ int ath11k_dp_rx_process_mon_status(stru
  	struct sk_buff *skb;
  	struct sk_buff_head skb_list;
  	struct ath11k_peer *peer;
@@ -448,7 +448,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	int num_buffs_reaped = 0;
  	u32 rx_buf_sz;
  	u16 log_type;
-@@ -5744,6 +5773,7 @@ int ath11k_dp_rx_process_mon_status(stru
+@@ -5748,6 +5777,7 @@ int ath11k_dp_rx_process_mon_status(stru
  			if (ppdu_info->reception_type == HAL_RX_RECEPTION_TYPE_SU) {
  				arsta = (struct ath11k_sta *)peer->sta->drv_priv;
  				ath11k_dp_rx_update_peer_su_stats(arsta, ppdu_info);
@@ -511,7 +511,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  
  #define CHAN2G(_channel, _freq, _flags) { \
  	.band                   = NL80211_BAND_2GHZ, \
-@@ -1680,6 +1681,11 @@ static void ath11k_control_beaconing(str
+@@ -1694,6 +1695,11 @@ static void ath11k_control_beaconing(str
  	lockdep_assert_held(&arvif->ar->conf_mutex);
  
  	if (!info->enable_beacon) {
@@ -523,7 +523,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  		ret = ath11k_wmi_vdev_down(ar, arvif->vdev_id);
  		if (ret)
  			ath11k_warn(ar->ab, "failed to down vdev_id %i: %d\n",
-@@ -1719,6 +1725,12 @@ static void ath11k_control_beaconing(str
+@@ -1729,6 +1735,12 @@ static void ath11k_control_beaconing(str
  
  	arvif->is_up = true;
  
@@ -536,7 +536,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	ath11k_dbg(ar->ab, ATH11K_DBG_MAC, "vdev %d up\n", arvif->vdev_id);
  }
  
-@@ -3157,6 +3169,12 @@ static void ath11k_bss_assoc(struct ieee
+@@ -3167,6 +3179,12 @@ static void ath11k_bss_assoc(struct ieee
  		   "vdev %d up (associated) bssid %pM aid %d\n",
  		   arvif->vdev_id, bss_conf->bssid, vif->cfg.aid);
  
@@ -549,7 +549,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	spin_lock_bh(&ar->ab->base_lock);
  
  	peer = ath11k_peer_find(ar->ab, arvif->vdev_id, arvif->bssid);
-@@ -3199,6 +3217,10 @@ static void ath11k_bss_disassoc(struct i
+@@ -3209,6 +3227,10 @@ static void ath11k_bss_disassoc(struct i
  
  	lockdep_assert_held(&ar->conf_mutex);
  
@@ -560,7 +560,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	ath11k_dbg(ar->ab, ATH11K_DBG_MAC, "vdev %i disassoc bssid %pM\n",
  		   arvif->vdev_id, arvif->bssid);
  
-@@ -3491,6 +3513,28 @@ static bool ath11k_mac_supports_station_
+@@ -3501,6 +3523,28 @@ static bool ath11k_mac_supports_station_
  		chandef->chan->band == NL80211_BAND_6GHZ;
  }
  
@@ -589,7 +589,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  static void ath11k_mac_op_bss_info_changed(struct ieee80211_hw *hw,
  					   struct ieee80211_vif *vif,
  					   struct ieee80211_bss_conf *info,
-@@ -4468,6 +4512,26 @@ static int ath11k_mac_op_set_key(struct
+@@ -4478,6 +4522,26 @@ static int ath11k_mac_op_set_key(struct
  
  	spin_lock_bh(&ab->base_lock);
  	peer = ath11k_peer_find(ab, arvif->vdev_id, peer_addr);
@@ -616,7 +616,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	if (peer && cmd == SET_KEY) {
  		peer->keys[key->keyidx] = key;
  		if (key->flags & IEEE80211_KEY_FLAG_PAIRWISE) {
-@@ -4506,9 +4570,8 @@ static int ath11k_mac_op_set_key(struct
+@@ -4516,9 +4580,8 @@ static int ath11k_mac_op_set_key(struct
  			break;
  		}
  	}
@@ -627,7 +627,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  exit:
  	mutex_unlock(&ar->conf_mutex);
  	return ret;
-@@ -6226,10 +6289,14 @@ static void ath11k_mac_op_tx(struct ieee
+@@ -6232,10 +6295,14 @@ static void ath11k_mac_op_tx(struct ieee
  	if (control->sta)
  		arsta = ath11k_sta_to_arsta(control->sta);
  
@@ -643,7 +643,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	}
  }
  
-@@ -6251,6 +6318,8 @@ static int ath11k_mac_config_mon_status_
+@@ -6257,6 +6324,8 @@ static int ath11k_mac_config_mon_status_
  
  	if (enable) {
  		tlv_filter = ath11k_mac_mon_status_filter_default;
@@ -652,7 +652,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  		if (ath11k_debugfs_rx_filter(ar))
  			tlv_filter.rx_filter = ath11k_debugfs_rx_filter(ar);
  	}
-@@ -6736,6 +6805,8 @@ static int ath11k_mac_vdev_delete(struct
+@@ -6739,6 +6808,8 @@ static int ath11k_mac_vdev_delete(struct
  
  	reinit_completion(&ar->vdev_delete_done);
  
@@ -661,7 +661,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	ret = ath11k_wmi_vdev_delete(ar, arvif->vdev_id);
  	if (ret) {
  		ath11k_warn(ar->ab, "failed to delete WMI vdev %d: %d\n",
-@@ -6889,8 +6960,34 @@ static int ath11k_mac_op_add_interface(s
+@@ -6892,8 +6963,34 @@ static int ath11k_mac_op_add_interface(s
  	list_add(&arvif->list, &ar->arvifs);
  	spin_unlock_bh(&ar->data_lock);
  
@@ -696,7 +696,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	nss = get_num_chains(ar->cfg_tx_chainmask) ? : 1;
  	ret = ath11k_wmi_vdev_set_param_cmd(ar, arvif->vdev_id,
  					    WMI_VDEV_PARAM_NSS, nss);
-@@ -7019,6 +7116,7 @@ err_peer_del:
+@@ -7022,6 +7119,7 @@ err_peer_del:
  	}
  
  err_vdev_del:
@@ -704,7 +704,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	ath11k_mac_vdev_delete(ar, arvif);
  	spin_lock_bh(&ar->data_lock);
  	list_del(&arvif->list);
-@@ -7537,6 +7635,10 @@ ath11k_mac_update_vif_chan(struct ath11k
+@@ -7536,6 +7634,10 @@ ath11k_mac_update_vif_chan(struct ath11k
  				    arvif->vdev_id, ret);
  			continue;
  		}
@@ -715,7 +715,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	}
  
  	/* Restart the internal monitor vdev on new channel */
-@@ -9261,6 +9363,8 @@ static void ath11k_mac_op_sta_statistics
+@@ -9240,6 +9342,8 @@ static void ath11k_mac_op_sta_statistics
  		sinfo->signal_avg += ATH11K_DEFAULT_NOISE_FLOOR;
  
  	sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL_AVG);
@@ -724,7 +724,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  }
  
  #if IS_ENABLED(CONFIG_IPV6)
-@@ -9975,6 +10079,7 @@ static const struct ieee80211_ops ath11k
+@@ -9915,6 +10019,7 @@ static const struct ieee80211_ops ath11k
  	.update_vif_offload		= ath11k_mac_op_update_vif_offload,
  	.config                         = ath11k_mac_op_config,
  	.bss_info_changed               = ath11k_mac_op_bss_info_changed,
@@ -732,7 +732,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	.configure_filter		= ath11k_mac_op_configure_filter,
  	.hw_scan                        = ath11k_mac_op_hw_scan,
  	.cancel_hw_scan                 = ath11k_mac_op_cancel_hw_scan,
-@@ -10415,7 +10520,8 @@ static int __ath11k_mac_register(struct
+@@ -10360,7 +10465,8 @@ static int __ath11k_mac_register(struct
  		ieee80211_hw_set(ar->hw, TX_AMPDU_SETUP_IN_HW);
  		ieee80211_hw_set(ar->hw, SUPPORTS_REORDERING_BUFFER);
  		ieee80211_hw_set(ar->hw, SUPPORTS_AMSDU_IN_AMPDU);
@@ -742,7 +742,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	}
  
  	ar->hw->wiphy->features |= NL80211_FEATURE_STATIC_SMPS;
-@@ -10530,6 +10636,9 @@ static int __ath11k_mac_register(struct
+@@ -10475,6 +10581,9 @@ static int __ath11k_mac_register(struct
  	    ab->hw_params.bios_sar_capa)
  		ar->hw->wiphy->sar_capa = ab->hw_params.bios_sar_capa;
  
@@ -1170,7 +1170,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  	ath11k_hif_write32(ab, reo_base + HAL_REO1_DEST_RING_CTRL_IX_3,
 --- a/drivers/net/wireless/ath/ath11k/pcic.c
 +++ b/drivers/net/wireless/ath/ath11k/pcic.c
-@@ -589,6 +589,12 @@ static int ath11k_pcic_ext_irq_config(st
+@@ -609,6 +609,12 @@ static int ath11k_pcic_ext_irq_config(st
  		netif_napi_add(irq_grp->napi_ndev, &irq_grp->napi,
  			       ath11k_pcic_ext_grp_napi_poll);
  
@@ -1185,7 +1185,7 @@ Signed-off-by: Sriram R <srirrama@codeaurora.org>
  		    ab->hw_params.ring_mask->rx_err[i] ||
 --- a/local-symbols
 +++ b/local-symbols
-@@ -165,6 +165,7 @@ WCN36XX_DEBUGFS=
+@@ -159,6 +159,7 @@ WCN36XX_DEBUGFS=
  ATH11K=
  ATH11K_AHB=
  ATH11K_PCI=
