@@ -23,7 +23,7 @@ Signed-off-by: Rameshkumar Sundaram <ramess@codeaurora.org>
 
 --- a/drivers/net/wireless/ath/ath11k/mac.c
 +++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -7611,8 +7611,10 @@ err_vdev_del:
+@@ -7614,8 +7614,10 @@ err_vdev_del:
  	kfree(arvif->vlan_keyid_map);
  	ath11k_peer_cleanup(ar, arvif->vdev_id);
  
@@ -87,8 +87,8 @@ Signed-off-by: Rameshkumar Sundaram <ramess@codeaurora.org>
 +	spin_unlock_bh(&ar->data_lock);
  
  	info = IEEE80211_SKB_CB(msdu);
- 	memset(&info->status, 0, sizeof(info->status));
-@@ -6125,34 +6148,6 @@ static int wmi_process_tx_comp(struct at
+ 	if ((!(info->flags & IEEE80211_TX_CTL_NO_ACK)) &&
+@@ -6122,34 +6145,6 @@ static int wmi_process_tx_comp(struct at
  	 */
  	info->status.rates[0].idx = -1;
  

@@ -229,7 +229,7 @@
  struct wmi_delba_send_cmd {
 --- a/drivers/net/wireless/ath/ath11k/mac.c
 +++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -6831,6 +6831,9 @@ static int ath11k_mac_op_start(struct ie
+@@ -6837,6 +6837,9 @@ static int ath11k_mac_op_start(struct ie
  		}
  	}
  

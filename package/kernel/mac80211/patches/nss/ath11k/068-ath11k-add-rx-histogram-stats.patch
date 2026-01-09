@@ -20,16 +20,16 @@ Signed-off-by: Manikanta Pubbisetty <mpubbise@codeaurora.org>
 
 --- a/drivers/net/wireless/ath/ath11k/core.h
 +++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -44,6 +44,8 @@
+@@ -46,6 +46,8 @@
  
  #define ATH11K_INVALID_HW_MAC_ID	0xFF
  #define ATH11K_CONNECTION_LOSS_HZ	(3 * HZ)
 +#define ATH11K_RX_RATE_TABLE_NUM 320
 +#define ATH11K_RX_RATE_TABLE_11AX_NUM 576
  
- /* SMBIOS type containing Board Data File Name Extension */
- #define ATH11K_SMBIOS_BDF_EXT_TYPE 0xF8
-@@ -428,6 +430,17 @@ struct ath11k_vif_iter {
+ #define	ATH11K_QCN6122_USERPD_2		1
+ #define	ATH11K_QCN6122_USERPD_3		2
+@@ -432,6 +434,17 @@ struct ath11k_vif_iter {
  	struct ath11k_vif *arvif;
  };
  
@@ -47,7 +47,7 @@ Signed-off-by: Manikanta Pubbisetty <mpubbise@codeaurora.org>
  struct ath11k_rx_peer_stats {
  	u64 num_msdu;
  	u64 num_mpdu_fcs_ok;
-@@ -439,10 +452,6 @@ struct ath11k_rx_peer_stats {
+@@ -443,10 +456,6 @@ struct ath11k_rx_peer_stats {
  	u64 non_ampdu_msdu_count;
  	u64 stbc_count;
  	u64 beamformed_count;
@@ -58,7 +58,7 @@ Signed-off-by: Manikanta Pubbisetty <mpubbise@codeaurora.org>
  	u64 coding_count[HAL_RX_SU_MU_CODING_MAX];
  	u64 tid_count[IEEE80211_NUM_TIDS + 1];
  	u64 pream_cnt[HAL_RX_PREAMBLE_MAX];
-@@ -450,6 +459,8 @@ struct ath11k_rx_peer_stats {
+@@ -454,6 +463,8 @@ struct ath11k_rx_peer_stats {
  	u64 rx_duration;
  	u64 dcm_count;
  	u64 ru_alloc_cnt[HAL_RX_RU_ALLOC_TYPE_MAX];
@@ -341,16 +341,7 @@ Signed-off-by: Manikanta Pubbisetty <mpubbise@codeaurora.org>
  	if (ppdu_info->ldpc < HAL_RX_SU_MU_CODING_MAX)
  		rx_stats->coding_count[ppdu_info->ldpc] += num_msdu;
  
-@@ -2826,8 +2849,6 @@ static void ath11k_dp_rx_update_peer_sta
- 	rx_stats->dcm_count += ppdu_info->dcm;
- 	rx_stats->ru_alloc_cnt[ppdu_info->ru_alloc] += num_msdu;
- 
--	arsta->rssi_comb = ppdu_info->rssi_comb;
--
- 	BUILD_BUG_ON(ARRAY_SIZE(arsta->chain_signal) >
- 			     ARRAY_SIZE(ppdu_info->rssi_chain_pri20));
- 
-@@ -2836,6 +2857,52 @@ static void ath11k_dp_rx_update_peer_sta
+@@ -2834,6 +2857,52 @@ static void ath11k_dp_rx_update_peer_sta
  
  	rx_stats->rx_duration += ppdu_info->rx_duration;
  	arsta->rx_duration = rx_stats->rx_duration;
@@ -661,7 +652,7 @@ Signed-off-by: Manikanta Pubbisetty <mpubbise@codeaurora.org>
  #define ATH11K_TX_RING_MASK_0 BIT(0)
 --- a/drivers/net/wireless/ath/ath11k/hw.h
 +++ b/drivers/net/wireless/ath/ath11k/hw.h
-@@ -270,6 +270,7 @@ struct ath11k_hw_ops {
+@@ -277,6 +277,7 @@ struct ath11k_hw_ops {
  	bool (*rx_desc_mac_addr2_valid)(struct hal_rx_desc *desc);
  	u8* (*rx_desc_mpdu_start_addr2)(struct hal_rx_desc *desc);
  	u32 (*get_ring_selector)(struct sk_buff *skb);
