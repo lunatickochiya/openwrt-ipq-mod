@@ -11,6 +11,7 @@
 / {
 	aliases {
 		serial0 = &blsp1_uart3;
+		sdhc1 = &sdhc;
 
 		led-boot = &led_status_blue;
 		led-failsafe = &led_status_red;
@@ -60,10 +61,11 @@
 
 &sdhc {
 	status = "okay";
-
+	bus-width = <8>;
 	/delete-property/ mmc-hs400-1_8v;
 	mmc-hs200-1_8v;
 	mmc-ddr-1_8v;
+	non-removable
 };
 
 &wifi {
