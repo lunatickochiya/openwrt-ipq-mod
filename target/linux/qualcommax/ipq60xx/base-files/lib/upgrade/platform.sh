@@ -52,6 +52,8 @@ platform_do_upgrade() {
 		fw_setenv owrt_slotactive $((1 - active))
 		nand_do_upgrade "$1"
 		;;
+	link,nn6000-v1|\
+	link,nn6000-v2|\
 	jdcloud,re-ss-01|\
 	jdcloud,re-cs-02)
 		CI_KERNPART="0:HLOS"
@@ -66,6 +68,8 @@ platform_do_upgrade() {
 
 platform_copy_config() {
 	case "$(board_name)" in
+	link,nn6000-v1|\
+	link,nn6000-v2|\
 	jdcloud,re-ss-01)
 		emmc_copy_config
 		;;
