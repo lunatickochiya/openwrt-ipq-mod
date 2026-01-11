@@ -74,16 +74,24 @@ define Device/link_nn6000-v1
 	DEVICE_VENDOR := Link
 	DEVICE_MODEL := NN6000 v1
 	KERNEL_SIZE := 6144k
-	BLOCKSIZE := 128k
+	BLOCKSIZE := 64k
 	SOC := ipq6000
 	DEVICE_DTS_CONFIG := config@cp03-c1
-	DEVICE_PACKAGES := ipq-wifi-link_nn6000
+	DEVICE_PACKAGES := ipq-wifi-link_nn6000 kmod-fs-f2fs mkf2fs
 	IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-rootfs | append-metadata
 endef
 TARGET_DEVICES += link_nn6000-v1
 
 define Device/link_nn6000-v2
-	$(Device/link_nn6000-v1)
+	$(call Device/FitImage)
+	$(call Device/EmmcImage)
+	DEVICE_VENDOR := Link
 	DEVICE_MODEL := NN6000 v2
+	KERNEL_SIZE := 6144k
+	BLOCKSIZE := 64k
+	SOC := ipq6000
+	DEVICE_DTS_CONFIG := config@cp03-c1
+	DEVICE_PACKAGES := ipq-wifi-link_nn6000 kmod-fs-f2fs mkf2fs
+	IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-rootfs | append-metadata
 endef
 TARGET_DEVICES += link_nn6000-v2
