@@ -83,23 +83,3 @@ define Device/jdcloud_re-cs-02
 	IMAGE/factory.bin := append-kernel | pad-to $${KERNEL_SIZE} | append-rootfs | append-metadata
 endef
 TARGET_DEVICES += jdcloud_re-cs-02
-
-define Device/link_nn6000-v1
-	$(call Device/FitImage)
-	$(call Device/EmmcImage)
-	DEVICE_VENDOR := Link
-	DEVICE_MODEL := NN6000 v1
-	KERNEL_SIZE := 6144k
-	BLOCKSIZE := 128k
-	SOC := ipq6000
-	DEVICE_DTS_CONFIG := config@cp03-c1
-	DEVICE_PACKAGES := ipq-wifi-link_nn6000
-	IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-rootfs | append-metadata
-endef
-TARGET_DEVICES += link_nn6000-v1
-
-define Device/link_nn6000-v2
-	$(Device/link_nn6000-v1)
-	DEVICE_MODEL := NN6000 v2
-endef
-TARGET_DEVICES += link_nn6000-v2

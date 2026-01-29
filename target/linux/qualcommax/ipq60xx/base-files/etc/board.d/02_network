@@ -11,7 +11,6 @@ ipq60xx_setup_interfaces()
 	local board="$1"
 
 	case "$board" in
-	link,nn6000-v1|\
 	8devices,mango-dvk)
 		ucidef_set_interfaces_lan_wan "lan1 lan2" "wan"
 		;;
@@ -27,7 +26,6 @@ ipq60xx_setup_interfaces()
 	jdcloud,re-ss-01)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
 		;;
-	link,nn6000-v2|\
 	jdcloud,re-cs-02)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
 		;;
