@@ -1193,16 +1193,21 @@ Signed-off-by: Gautham Kumar Senthilkumaran <quic_gauthamk@quicinc.com>
  		if (!is_multicast_ether_addr(skb->data)) {
  			struct sta_info *next_hop;
  			bool mpp_lookup = true;
-@@ -2964,6 +2974,9 @@ static struct sk_buff *ieee80211_build_h
- 
+@@ -2974,10 +2984,10 @@ static struct sk_buff *ieee80211_build_h
+
  	skb_reset_mac_header(skb);
- 
+
+-	info = IEEE80211_SKB_CB(skb);
+-	memset(info, 0, sizeof(*info));
+-
+-	info->flags = info_flags;
 +#ifdef CPTCFG_MAC80211_MESH
 +nss_mesh:
 +#endif
- 	info = IEEE80211_SKB_CB(skb);
- 	memset(info, 0, sizeof(*info));
- 
++	info->flags |= info_flags;
+ 	if (info_id) {
+ 		info->status_data = info_id;
+ 		info->status_data_idr = 1;
 @@ -4291,6 +4304,7 @@ void __ieee80211_subif_start_xmit(struct
  	struct sk_buff *next;
  	int len = skb->len;
