@@ -37,10 +37,10 @@ Signed-off-by: Monika Korada <quic_koramoni@quicinc.com>
 -			netif_carrier_off(dev);
 +			if (dev)
 +				netif_carrier_off(dev);
- 
+
  			if (ieee80211_hw_check(&local->hw, SUPPORTS_NSS_OFFLOAD)) {
  				ieee80211_set_sdata_offload_flags(sdata);
-@@ -1479,7 +1481,8 @@ int ieee80211_do_open(struct wireless_de
+@@ -1459,7 +1461,8 @@ int ieee80211_do_open(struct wireless_de
  		ieee80211_recalc_offload(local);
  		ieee80211_recalc_idle(local);
  
@@ -49,7 +49,8 @@ Signed-off-by: Monika Korada <quic_koramoni@quicinc.com>
 +			netif_carrier_on(dev);
  		break;
  	default:
-@@ -1524,7 +1527,8 @@ int ieee80211_do_open(struct wireless_de
+ 		if (coming_up) {
+@@ -1503,7 +1506,8 @@ int ieee80211_do_open(struct wireless_de
  		case NL80211_IFTYPE_AP:
  		case NL80211_IFTYPE_MESH_POINT:
  		case NL80211_IFTYPE_OCB:
